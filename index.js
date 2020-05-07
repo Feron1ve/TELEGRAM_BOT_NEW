@@ -6,53 +6,62 @@ const token = '1178156722:AAEyAyM7E8m9peeIITtIgZV7y9eqPtsV8OY';
 
 console.log('Bot has been started....')
 
+
 const bot = new TelegramBot(token, {
     polling: {
-        interval: 300,
+        interval: 100,
         autoStart: true,
         params: {
-            timeout: 2000
+            timeout: 100
         }
     }
 });
 
-bot.on('message', msg=> {
+const inline_keyboard = [
+    [
+        {
+            text: 'Forward',
+            callback_data: 'forward'
+        },
+        {
+            text: 'Reply',
+            callback_data: 'reply'
+        }
+    ],
+    [
+        {
+            text: 'Edit',
+            callback_data: 'edit'
+        },
+        {
+            text: 'Delete',
+            callback_data: 'delete'
+        }
+    ]
+]
 
-    const chatId = msg.chat.id
+bot.on ('callback_query',  query => {
 
-    if (msg.text === 'Закрыть'){
+    const {chat, message_id, text}  = query.message
 
-        bot.sendMessage(chatId, 'Закрыть клавиатуру', {
-            reply_markup: {
-                remove_keyboard:true
-            }
-        })
-
-    } else if (msg.text === 'Ответить') {
-
-        bot.sendMessage(chatId, 'Отвечаю', {
-            reply_markup: {
-                force_reply: true
-            }
-        })
-
-    }else {
-        bot.sendMessage(chatId, 'Клавиатура', {
-            reply_markup: {
-                keyboard: [
-                    [{
-                    text: 'Отправить местоположение',
-                        request_location: true
-                    }],
-                    ['Ответить','Закрыть'],
-                    [{
-                    text: 'Отправить контакт',
-                         request_contact: true
-                    }],
-                ]
-            }
-        })
+    switch (query.data) {
+        case 'forward':
+            // куда, откуда, что
+            bot.forwardMessage(chat.id, chat.id, message_id)
+            break;
     }
 
+    bot.answerCallbackQuery({
+        callback_query_id: query.id
+    })
 })
 
+bot.onText(/\/start/, (msg) =>{
+    const chatId = msg.chat.id
+
+    bot.sendMessage(chatId, 'Keyboard12345', {
+        reply_markup: {
+            inline_keyboard
+        }
+    })
+})

@@ -3,3 +3,4 @@ function debug(obj = {}) {
 }
 
 module.exports = debug
+
